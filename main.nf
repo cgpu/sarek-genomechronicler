@@ -2283,8 +2283,6 @@ process VEP {
     reducedVCF = reduceVCF(vcf.fileName)
     genome = params.genome == 'smallGRCh37' ? 'GRCh37' : params.genome
     dir_cache = (params.vep_cache && params.annotation_cache) ? " \${PWD}/${dataDir}" : "/.vep"
-    cadd = (params.cadd_cache && params.cadd_WG_SNVs && params.cadd_InDels) ? "--plugin CADD,whole_genome_SNVs.tsv.gz,InDels.tsv.gz" : ""
-    genesplicer = params.genesplicer ? "--plugin GeneSplicer,/opt/conda/envs/sarek-${workflow.manifest.version}/bin/genesplicer,/opt/conda/envs/sarek-${workflow.manifest.version}/share/genesplicer-1.0-1/human,context=200,tmpdir=\$PWD/${reducedVCF}" : "--offline"
     """
     hello_message="I am here at VEP"
     echo $hello_message
@@ -2294,8 +2292,6 @@ process VEP {
         -i ${vcf} \
         -o ${reducedVCF}_VEP.ann.vcf \
         --assembly ${genome} \
-        ${cadd} \
-        ${genesplicer} \
         --cache \
         --cache_version ${cache_version} \
         --dir_cache ${dir_cache} \
@@ -2408,7 +2404,7 @@ compressVCFOutVEP = compressVCFOutVEP.dump(tag:'VCF')
 // STEP MULTIQC
 
 process MultiQC {
-    publishDir "${params.outdir}/Reports/MultiQC", mode: params.publishDirMode
+    publishDir "${params.outdir}/MultiQC", mode: 'copy'
 
     input:
         file (multiqcConfig) from Channel.value(params.multiqc_config ? file(params.multiqc_config) : "")
@@ -2430,7 +2426,6 @@ process MultiQC {
     """
     multiqc -f -v .
     """
-}
 
 multiQCOut.dump(tag:'MultiQC')
 
