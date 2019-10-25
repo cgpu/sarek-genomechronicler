@@ -2416,7 +2416,6 @@ process MultiQC {
         file ('SamToolsStats/*') from samtoolsStatsReport.collect().ifEmpty([])
         file ('snpEff/*') from snpeffReport.collect().ifEmpty([])
         file ('VCFTools/*') from vcftoolsReport.collect().ifEmpty([])
-        file("multiqc_report.html") into results
 
     output:
         set file("*multiqc_report.html"), file("*multiqc_data") into multiQCOut
